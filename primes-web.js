@@ -33,7 +33,7 @@ class primes_web {
     constructor() {
         this.#resetList();
         this.#resetLowSet();
-        this.#populateLowSet( Number.MAX_SAFE_INTEGER );
+        this.#populateLowSet(Number.MAX_SAFE_INTEGER);
     }
 
     /**
@@ -73,46 +73,46 @@ class primes_web {
      * Populates low set with prime number for later use
      * @param {number} range - range of expected high numbers to prepare for
     */
-    async #populateLowSet( range ) {
+    async #populateLowSet(range) {
         // check if parameter is of type number
-        if ( typeof range !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+        if (typeof range !== 'number')
+            throw new Error('Parameter must be a number');
         // reset low set
         this.#resetLowSet();
         // update range for low set
-        range = Math.floor( Math.sqrt( range ) );
+        range = Math.floor(Math.sqrt(range));
         // check limits
-        if ( range < 2 )
+        if (range < 2)
             return this.#resetLowSet();
-        if ( range > Number.MAX_SAFE_INTEGER )
-            throw new Error( 'The range exceeds the maximum safe integer' );
+        if (range > Number.MAX_SAFE_INTEGER)
+            throw new Error('The range exceeds the maximum safe integer');
         // pre-add before wheel factorization
-        if ( range > 1 )
-            this.#low_set.push( 2 );
-        if ( range > 2 )
-            this.#low_set.push( 3 );
-        if ( range > 4 )
-            this.#low_set.push( 5 );
+        if (range > 1)
+            this.#low_set.push(2);
+        if (range > 2)
+            this.#low_set.push(3);
+        if (range > 4)
+            this.#low_set.push(5);
         // prepare for loops
-        const sieveField = new BitArray( range );
-        const range_sqrt = Math.sqrt( range );
+        const sieveField = new BitArray(range);
+        const range_sqrt = Math.sqrt(range);
         // check each odd number
         let test = 7, multiple;
-        for ( ; test <= range_sqrt; test += 2 )
+        for (; test <= range_sqrt; test += 2)
             // is not marked yet
-            if ( sieveField.get( test ) ) {
+            if (sieveField.get(test)) {
                 // save prime number
-                this.#low_set.push( test );
+                this.#low_set.push(test);
                 // mark multiples of this as non prime number
-                for ( multiple = test * 2; j <= range; multiple += test )
-                    sieveField.set( multiple );
+                for (multiple = test * 2; j <= range; multiple += test)
+                    sieveField.set(multiple);
             }
         // save remaining prime numbers
-        for (; test <= range; test += 2 )
-            if ( sieveField.get( test ) )
-                this.#low_set.push( test );
+        for (; test <= range; test += 2)
+            if (sieveField.get(test))
+                this.#low_set.push(test);
         // save last prime number
-        this.#low_set_last = this.#low_set[ this.#low_set.length - 1 ];
+        this.#low_set_last = this.#low_set[this.#low_set.length - 1];
         // set ready flag
         this.#low_set_ready = true;
     }
@@ -122,21 +122,21 @@ class primes_web {
      * @param {number} number 
      * @returns {boolean} is prime number
      */
-    isPrime( number ) {
+    isPrime(number) {
         // check if parameter is of type number
-        if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+        if (typeof number !== 'number')
+            throw new Error('Parameter must be a number');
         // use low set of prime numbers if ready
-        if ( this.#low_set_ready )
-            return isPrimeFast( number );
+        if (this.#low_set_ready)
+            return isPrimeFast(number);
         // up to arbitrary limit of 2^32, beyond uses "too" much memory
-        if ( number < 2 ** 32 )
-            return this.isPrimeSieveEratosthenes( number );
+        if (number < 2 ** 32)
+            return this.isPrimeSieveEratosthenes(number);
         // up to max safe integer, usually 2^53
-        if ( number < Number.MAX_SAFE_INTEGER )
-            return this.isPrimeTrialDivision( number );
+        if (number < Number.MAX_SAFE_INTEGER)
+            return this.isPrimeTrialDivision(number);
         // avoid unsafe processing range
-        throw Error( 'The number used for the check exceeds the maximum safe integer' );
+        throw Error('The number used for the check exceeds the maximum safe integer');
     }
 
     /**
@@ -144,18 +144,18 @@ class primes_web {
      * @param {number} number 
      * @returns {boolean} is prime number
      */
-    isPrimeTrialDivision( number ) {
+    isPrimeTrialDivision(number) {
         // check if parameter is of type number
-        if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+        if (typeof number !== 'number')
+            throw new Error('Parameter must be a number');
         // is below 2 or is even
-        if ( number > 2 && number % 2 == 0 || number < 2 )
+        if (number > 2 && number % 2 == 0 || number < 2)
             return false;
         // test each odd numbers
         const number_sqrt = Math.sqrt(number);
-        for ( let test = 3; test <= number_sqrt; test += 2 )
+        for (let test = 3; test <= number_sqrt; test += 2)
             // check for common divisor
-            if ( number % test == 0 )
+            if (number % test == 0)
                 return false;
         // no other divisor found
         return true;
@@ -166,55 +166,55 @@ class primes_web {
      * @param {number} number 
      * @returns 
      */
-    isPrimeSieveEratosthenes( number ) {
+    isPrimeSieveEratosthenes(number) {
         // check if parameter is of type number
-        if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+        if (typeof number !== 'number')
+            throw new Error('Parameter must be a number');
         // is below 2
-        if ( number < 2 ) return false;
+        if (number < 2) return false;
         // prepare sieve field as bit array
-        const sieveField = new Array( number + 1 ).fill( true );
+        const sieveField = new Array(number + 1).fill(true);
         // mark 0 & 1
-        sieveField[ 0 ] = sieveField[ 1 ] = false;
+        sieveField[0] = sieveField[1] = false;
         // iterate each number
         const number_sqrt = Math.sqrt(number);
-        for ( let next = 2; next <= number_sqrt; next++ )
+        for (let next = 2; next <= number_sqrt; next++)
             // is not marked yet
-            if ( sieveField[ next ] )
+            if (sieveField[next])
                 // mark all multiples
-                for ( let multiple = next * 2; multiple <= number; multiple += next )
-                    sieveField[ multiple ] = false;
+                for (let multiple = next * 2; multiple <= number; multiple += next)
+                    sieveField[multiple] = false;
         // is number not marked
-        return sieveField[ number ];
+        return sieveField[number];
     }
 
     /**
      * Check if number is a prime number with prepared low set of prime numbers
      * @param {number} number 
      */
-    isPrimeFast( number ) {
+    isPrimeFast(number) {
         // check if parameter is of type number
-        if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+        if (typeof number !== 'number')
+            throw new Error('Parameter must be a number');
         // abort if low set of prime numbers are not ready yet
-        if ( !this.#low_set_ready )
-            throw Error( 'Low set of prime numbers is not ready yet' );
+        if (!this.#low_set_ready)
+            throw Error('Low set of prime numbers is not ready yet');
         // number is below 2 or even
-        if ( number < 2 || number & 1 == 0 )
+        if (number < 2 || number & 1 == 0)
             return false;
         // could be in prepared list of prime numbers
-        if ( number <= this.#low_set_last ) {
-            for ( test in this.#low_set )
+        if (number <= this.#low_set_last) {
+            for (test in this.#low_set)
                 // is in prepared list of prime numbers
-                if ( number == test )
+                if (number == test)
                     return true;
             // is not in prepared list of prime numbers
             return false;
-        // is not in prepared list of prime numbers
+            // is not in prepared list of prime numbers
         } else {
-            for ( test in this.#low_set )
+            for (test in this.#low_set)
                 // check for common divisor
-                if ( number % test == 0 )
+                if (number % test == 0)
                     return false;
             // no common divisor found
             return true;
@@ -233,33 +233,33 @@ class primes_web {
          * Initializes mask and field
          * @param {number} size 
          */
-        constructor( size ) {
+        constructor(size) {
             // check if parameter is of type number
-            if ( typeof number !== 'number' )
-                throw new Error( 'Parameter must be a number' );
+            if (typeof number !== 'number')
+                throw new Error('Parameter must be a number');
             // set mask
-            this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
+            this.#mask = [0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80];
             // set size
             this.#size;
             // create bit field
-            this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
+            this.#data = new Uint8Array(Math.floor(size / 30) + 1);
         }
 
         /**
          * Set number in the field
          * @param {number} number 
          */
-        set( number ) {
+        set(number) {
             // check if parameter is of type number
-            if ( typeof number !== 'number' )
-                throw new Error( 'Parameter must be a number' );
+            if (typeof number !== 'number')
+                throw new Error('Parameter must be a number');
             // precheck if number is odd and within represented range in field
-            if ( number & 1 == 1 && number >= 0 && number <= this.#size ) {
+            if (number & 1 == 1 && number >= 0 && number <= this.#size) {
                 // check if mask exists
-                const mask = this.#mask[ number % 30 ];
-                if ( mask != 0 )
+                const mask = this.#mask[number % 30];
+                if (mask != 0)
                     // set bit in field that represents the number
-                    this.#data[ Math.floor( number / 30 ) ] |= mask;
+                    this.#data[Math.floor(number / 30)] |= mask;
             }
         }
 
@@ -268,16 +268,16 @@ class primes_web {
          * @param {number} number 
          * @returns {boolean} if number is marked as prime number
          */
-        get( number ) {
+        get(number) {
             // check if parameter is of type number
-            if ( typeof number !== 'number' )
-                throw new Error( 'Parameter must be a number' );
+            if (typeof number !== 'number')
+                throw new Error('Parameter must be a number');
             // precheck if number below wheel factorization or is even
-            if ( number & 1 == 0 || number < 7 || number > this.#size )
+            if (number & 1 == 0 || number < 7 || number > this.#size)
                 return false;
             // check if mask exists & get bit in field that represents the number
-            const mask = this.#mask[ number % 30 ];
-            if ( mask && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
+            const mask = this.#mask[number % 30];
+            if (mask && this.#data[Math.floor(number / 30)] & mask != 0)
                 return true;
             // number is not marked
             return false;
@@ -291,20 +291,20 @@ class primes_web {
         #mask;
         #data;
 
-        constructor( size ) {
-            this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
-            this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
+        constructor(size) {
+            this.#mask = [0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80];
+            this.#data = new Uint8Array(Math.floor(size / 30) + 1);
         }
 
-        set( number ) {
-            const mask = this.#mask[ number % 30 ];
-            if ( mask != 0 )
-                this.#data[ Math.floor( number / 30 ) ] |= mask;
+        set(number) {
+            const mask = this.#mask[number % 30];
+            if (mask != 0)
+                this.#data[Math.floor(number / 30)] |= mask;
         }
 
-        get( number ) {
-            const mask = this.#mask[ number % 30 ];
-            if ( mask != 0 && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
+        get(number) {
+            const mask = this.#mask[number % 30];
+            if (mask != 0 && this.#data[Math.floor(number / 30)] & mask != 0)
                 return true;
             return false;
         }
