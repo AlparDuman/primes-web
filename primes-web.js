@@ -133,11 +133,10 @@ class primes_web {
         if ( number < 2 ** 32 )
             return this.isPrimeSieveEratosthenes( number );
         // up to max safe integer, usually 2^53
-        else if ( number < Number.MAX_SAFE_INTEGER )
+        if ( number < Number.MAX_SAFE_INTEGER )
             return this.isPrimeTrialDivision( number );
         // avoid unsafe processing range
-        else
-            throw Error( 'The number used for the check exceeds the maximum safe integer' );
+        throw Error( 'The number used for the check exceeds the maximum safe integer' );
     }
 
     /**
@@ -199,6 +198,9 @@ class primes_web {
             throw new Error( 'Parameter must be a number' );
         if ( !this.#low_set_ready )
             throw Error( 'Low set of prime numbers is not ready yet' );
+        // number is below 2 or even
+        if ( number < 2 || number & 1 == 0 )
+            return false;
         // could be in prepared list of prime numbers
         if ( number <= this.#low_set_last ) {
             for ( test in this.#low_set )
