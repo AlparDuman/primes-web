@@ -17,3 +17,37 @@
     else <https://www.gnu.org/licenses/>.
 */
 
+class primes_web {
+
+    isPrime( number ) {
+        if ( number < 2 ** 32 )
+            return isPrimeSieveEratosthenes( number );
+        else if ( number < Number.MAX_SAFE_INTEGER )
+            return isPrimeTrialDivision( number );
+        else
+            throw Error( `The number used for the check exceeds the maximum safe integer` );
+    }
+
+    isPrimeTrialDivision( number ) {
+        if ( number > 2 && number % 2 == 0 || number < 2 )
+            return false;
+        const number_sqrt = Math.sqrt(number);
+        for ( let test = 3; test <= number_sqrt; test += 2 )
+            if ( number % test == 0 )
+                return false;
+        return true;
+    }
+
+    isPrimeSieveEratosthenes( number ) {
+        if ( number < 2 ) return false;
+        const sieveField = new Array( number + 1 ).fill( true );
+        sieveField[ 0 ] = sieveField[ 1 ] = false;
+        const number_sqrt = Math.sqrt(number);
+        for ( let next = 2; next <= number_sqrt; next++ )
+            if ( sieveField[ next ] )
+                for ( let multiple = next * 2; multiple <= number; multiple += next )
+                    sieveField[ multiple ] = false;
+        return sieveField[ number ];
+    }
+}
+
