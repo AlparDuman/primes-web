@@ -23,6 +23,8 @@
 class primes_web {
     #count;
     #list;
+    #list_start;
+    #list_end;
     #low_set;
     #low_set_last;
     #low_set_ready;
@@ -57,6 +59,8 @@ class primes_web {
      */
     #resetList() {
         this.#count = 0;
+        this.#list_start = 0;
+        this.#list_end = 0;
         this.#list = [];
     }
 
@@ -74,9 +78,6 @@ class primes_web {
      * @param {number} range - range of expected high numbers to prepare for
     */
     async #populateLowSet( range ) {
-        // check if parameter is of type number
-        if ( typeof range !== 'number' )
-            throw new Error( 'Parameter must be a number' );
         // reset low set
         this.#resetLowSet();
         // update range for low set
@@ -219,6 +220,54 @@ class primes_web {
             // no common divisor found
             return true;
         }
+    }
+
+    /**
+     * Get a list if all prime numbers in a given range
+     * @param {number} range_start - begin search for prime numbers
+     * @param {number} range_end - end search of prime numbers
+     * @returns {array} prime numbers
+     */
+    getPrimes( range_start, range_end, keep_cache = true ) {
+        // reset list of prime numbers
+        this.#resetList();
+        // check if parameters is of type number
+        if ( typeof range_start !== 'number' || typeof range_end !== 'number' )
+            throw new Error( 'Parameters must be a number' );
+        // sort range limiter
+        if ( range_start > range_end ) {
+            let tmp = range_start;
+            range_end = range_start;
+            range_end = tmp;
+        }
+        // check if already in cache
+        if ( range_start == this.#list_start && range_end == this.#list_end )
+            return this.#list;
+        // init new list with counter
+        let newList = [], counter = 0;
+        // use low set of prime numbers are ready
+        if ( this.#low_set_ready ) {
+
+            // WIP
+
+        // else use conventional
+        } else {
+            let number = range_start;
+            for (; number < range_end; number++ )
+                if ( this.isPrime( number ) ) {
+                    newList.push( number );
+                    counter++;
+                }
+        }
+        if ( keep_cache ) {
+            // set new list limits for cache
+            this.#list_start = range_start;
+            this.#list_end = range_end;
+            this.#count = counter;
+            this.#list = newList;
+        }
+        // return internal list of prime numbers
+        return newList;
     }
 
     /**
