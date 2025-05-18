@@ -100,7 +100,7 @@ class primes_web {
         let test = 7, multiple;
         for ( ; test <= range_sqrt; test += 2 )
             // is not marked yet
-            if ( !sieveField.get( test ) ) {
+            if ( sieveField.get( test ) ) {
                 // save prime number
                 this.#low_set.push( test );
                 // mark multiples of this as non prime number
@@ -109,7 +109,7 @@ class primes_web {
             }
         // save remaining prime numbers
         for (; test <= range; test += 2 )
-            if ( !sieveField.get( test ) )
+            if ( sieveField.get( test ) )
                 this.#low_set.push( test );
         // save last prime number
         this.#low_set_last = this.#low_set[ this.#low_set.length - 1 ];
@@ -196,6 +196,7 @@ class primes_web {
         // check if parameter is of type number
         if ( typeof number !== 'number' )
             throw new Error( 'Parameter must be a number' );
+        // abort if low set of prime numbers are not ready yet
         if ( !this.#low_set_ready )
             throw Error( 'Low set of prime numbers is not ready yet' );
         // number is below 2 or even
@@ -220,22 +221,62 @@ class primes_web {
         }
     }
 
+    /**
+     * internal class to handle bit arrays
+     */
     static BitArray = class {
+        #mask;
+        #size;
+        #data;
+
+        /**
+         * Initializes mask and field
+         * @param {number} size 
+         */
         constructor( size ) {
-            this.mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
-            this.data = new Uint8Array( Math.floor( size / 30 ) + 1 );
+            // check if parameter is of type number
+            if ( typeof number !== 'number' )
+                throw new Error( 'Parameter must be a number' );
+            // set mask
+            this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
+            // set size
+            this.#size;
+            // create bit field
+            this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
         }
 
+        /**
+         * Set number in the field
+         * @param {number} number 
+         */
         set( number ) {
-            if ( number & 1 )
-                this.data[ Math.floor( number / 30 ) ] |= this.mask[ number % 30 ];
+            // check if parameter is of type number
+            if ( typeof number !== 'number' )
+                throw new Error( 'Parameter must be a number' );
+            // precheck if number is odd and within represented range in field
+            if ( number & 1 == 1 && number >= 0 && number <= size )
+                // set bit in field that represents the number
+                this.#data[ Math.floor( number / 30 ) ] |= this.#mask[ number % 30 ];
         }
 
-        get( n ) {
-            const mask = this.mask[ number % 30 ];
-            if ( mask )
-                return this.data[ Math.floor( number / 30 ) ] & mask;
-            return 1;
+        /**
+         * Get number from field
+         * @param {number} number 
+         * @returns {boolean} if number is marked as prime
+         */
+        get( number ) {
+            // check if parameter is of type number
+            if ( typeof number !== 'number' )
+                throw new Error( 'Parameter must be a number' );
+            // precheck if number below wheel factorization or is even
+            if ( number < 7 || number & 1 == 0 )
+                return false;
+            // get bit in field that represents the number
+            const mask = this.#mask[ number % 30 ];
+            if ( mask && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
+                return true;
+            // number is not marked
+            return false;
         }
     }
 }
