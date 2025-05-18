@@ -254,28 +254,71 @@ class primes_web {
             if ( typeof number !== 'number' )
                 throw new Error( 'Parameter must be a number' );
             // precheck if number is odd and within represented range in field
-            if ( number & 1 == 1 && number >= 0 && number <= size )
-                // set bit in field that represents the number
-                this.#data[ Math.floor( number / 30 ) ] |= this.#mask[ number % 30 ];
+            if ( number & 1 == 1 && number >= 0 && number <= this.#size ) {
+                // check if mask exists
+                const mask = this.#mask[ number % 30 ];
+                if ( mask != 0 )
+                    // set bit in field that represents the number
+                    this.#data[ Math.floor( number / 30 ) ] |= mask;
+            }
         }
 
         /**
-         * Get number from field
+         * Get is prime number mark from field for number
          * @param {number} number 
-         * @returns {boolean} if number is marked as prime
+         * @returns {boolean} if number is marked as prime number
          */
         get( number ) {
             // check if parameter is of type number
             if ( typeof number !== 'number' )
                 throw new Error( 'Parameter must be a number' );
             // precheck if number below wheel factorization or is even
-            if ( number < 7 || number & 1 == 0 )
+            if ( number & 1 == 0 || number < 7 || number > this.#size )
                 return false;
-            // get bit in field that represents the number
+            // check if mask exists & get bit in field that represents the number
             const mask = this.#mask[ number % 30 ];
             if ( mask && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
                 return true;
             // number is not marked
+            return false;
+        }
+    }
+
+    /**
+     * copy of internal class bitarray, to test performance with removed safety checks
+     */
+    static BitArrayTest = class {
+        #mask;
+        #data;
+
+        /**
+         * Initializes mask and field
+         * @param {number} size 
+         */
+        constructor( size ) {
+            this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
+            this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
+        }
+
+        /**
+         * Set number in the field
+         * @param {number} number 
+         */
+        set( number ) {
+            const mask = this.#mask[ number % 30 ];
+            if ( mask != 0 )
+                this.#data[ Math.floor( number / 30 ) ] |= mask;
+        }
+
+        /**
+         * Get is prime number mark from field for number
+         * @param {number} number 
+         * @returns {boolean} if number is marked as prime number
+         */
+        get( number ) {
+            const mask = this.#mask[ number % 30 ];
+            if ( mask != 0 && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
+                return true;
             return false;
         }
     }
