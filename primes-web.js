@@ -285,36 +285,23 @@ class primes_web {
     }
 
     /**
-     * copy of internal class bitarray, to test performance with removed safety checks
+     * copy of internal class bitarray, to test performance with removed safety checks & comments
      */
     static BitArrayTest = class {
         #mask;
         #data;
 
-        /**
-         * Initializes mask and field
-         * @param {number} size 
-         */
         constructor( size ) {
             this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
             this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
         }
 
-        /**
-         * Set number in the field
-         * @param {number} number 
-         */
         set( number ) {
             const mask = this.#mask[ number % 30 ];
             if ( mask != 0 )
                 this.#data[ Math.floor( number / 30 ) ] |= mask;
         }
 
-        /**
-         * Get is prime number mark from field for number
-         * @param {number} number 
-         * @returns {boolean} if number is marked as prime number
-         */
         get( number ) {
             const mask = this.#mask[ number % 30 ];
             if ( mask != 0 && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
