@@ -77,7 +77,9 @@ class primes_web {
         // check if parameter is of type number
         if ( typeof range !== 'number' )
             throw new Error( 'Parameter must be a number' );
-        // range for low set
+        // reset low set
+        this.#resetLowSet();
+        // update range for low set
         range = Math.floor( Math.sqrt( range ) );
         // check limits
         if ( range < 2 )
@@ -86,11 +88,11 @@ class primes_web {
             throw new Error( 'The range exceeds the maximum safe integer' );
         // pre-add before wheel factorization
         if ( range > 1 )
-            this.#low_set.push(2);
+            this.#low_set.push( 2 );
         if ( range > 2 )
-            this.#low_set.push(3);
+            this.#low_set.push( 3 );
         if ( range > 4 )
-            this.#low_set.push(5);
+            this.#low_set.push( 5 );
         // prepare for loops
         const sieveField = new BitArray( range );
         const range_sqrt = Math.sqrt( range );
@@ -110,7 +112,7 @@ class primes_web {
             if ( !sieveField.get( test ) )
                 this.#low_set.push( test );
         // save last prime number
-        this.#low_set_last = test - 2;
+        this.#low_set_last = this.#low_set[ this.#low_set.length - 1 ];
         // set ready flag
         this.#low_set_ready = true;
     }
@@ -124,6 +126,9 @@ class primes_web {
         // check if parameter is of type number
         if ( typeof number !== 'number' )
             throw new Error( 'Parameter must be a number' );
+        // use low set of prime numbers if ready
+        if ( this.#low_set_ready )
+            return isPrimeFast( number );
         // up to arbitrary limit of 2^32, beyond uses "too" much memory
         if ( number < 2 ** 32 )
             return this.isPrimeSieveEratosthenes( number );
@@ -192,6 +197,8 @@ class primes_web {
         // check if parameter is of type number
         if ( typeof number !== 'number' )
             throw new Error( 'Parameter must be a number' );
+        if ( !this.#low_set_ready )
+            throw Error( 'Low set of prime numbers is not ready yet' );
         // could be in prepared list of prime numbers
         if ( number <= this.#low_set_last ) {
             for ( test in this.#low_set )
