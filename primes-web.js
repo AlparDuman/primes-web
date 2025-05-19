@@ -34,7 +34,6 @@ class primes_web {
      */
     constructor() {
         this.#resetList();
-        this.#resetLowSet();
         this.#populateLowSet( Number.MAX_SAFE_INTEGER );
     }
 
@@ -68,9 +67,9 @@ class primes_web {
      * Resets the low set of prime numbers
      */
     #resetLowSet() {
-        this.#low_set = [];
-        this.#low_set_last = 0;
         this.#low_set_ready = false;
+        this.#low_set_last = 0;
+        this.#low_set = [];
     }
 
     /**
@@ -78,15 +77,13 @@ class primes_web {
      * @param {number} range - range of expected high numbers to prepare for
     */
     async #populateLowSet( range ) {
-        // reset low set
-        this.#resetLowSet();
         // update range for low set
         range = Math.floor( Math.sqrt( range ) );
-        // check limits
-        if ( range < 2 )
-            return this.#resetLowSet();
-        if ( range > Number.MAX_SAFE_INTEGER )
-            throw new Error( 'The range exceeds the maximum safe integer' );
+        // reset low set
+        this.#resetLowSet();
+        // timing start & reset low set
+        console.log( `[primes-web] Populating low set of prime numbers up to the range of ${ range }` );
+        let timing_start = Date.now();
         // pre-add before wheel factorization
         if ( range > 1 )
             this.#low_set.push( 2 );
@@ -95,49 +92,40 @@ class primes_web {
         if ( range > 4 )
             this.#low_set.push( 5 );
         // prepare for loops
-        const sieveField = new BitArray( range );
+        const sieveField = new primes_web.BitArray( range );
         const range_sqrt = Math.sqrt( range );
         // check each odd number
-        let test = 7, multiple;
+        let test = 7, oddMultiple;
         for ( ; test <= range_sqrt; test += 2 )
             // is not marked yet
-            if ( sieveField.get( test ) ) {
+            if ( !sieveField.get( test, true ) ) {
                 // save prime number
                 this.#low_set.push( test );
-                // mark multiples of this as non prime number
-                for ( multiple = test * 2; j <= range; multiple += test )
-                    sieveField.set( multiple );
+                // mark odd multiples of this as non prime number
+                const stepMultiple = test * 2;
+                for ( oddMultiple = stepMultiple + test; oddMultiple <= range; oddMultiple += stepMultiple )
+                    sieveField.set( oddMultiple, true );
             }
         // save remaining prime numbers
         for (; test <= range; test += 2 )
-            if ( sieveField.get( test ) )
+            if ( !sieveField.get( test, true ) )
                 this.#low_set.push( test );
         // save last prime number
         this.#low_set_last = this.#low_set[ this.#low_set.length - 1 ];
         // set ready flag
         this.#low_set_ready = true;
+        // timing end & report to console
+        let timing_end = Date.now();
+        console.log( `[primes-web] Low set of prime numbers contains ${ this.#low_set.length } numbers & prepared in ${ Math.round( ( timing_end - timing_start ) ) } ms` );
     }
 
     /**
-     * Default method to check if prime number, uses recommended method for given number
+     * Uses recommended algorithm to validate prime number
      * @param {number} number 
-     * @returns {boolean} is prime number
+     * @returns {boolean} is a prime number
      */
     isPrime( number ) {
-        // check if parameter is of type number
-        if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
-        // use low set of prime numbers if ready
-        if ( this.#low_set_ready )
-            return isPrimeFast( number );
-        // up to arbitrary limit of 2^32, beyond uses "too" much memory
-        if ( number < 2 ** 32 )
-            return this.isPrimeSieveEratosthenes( number );
-        // up to max safe integer, usually 2^53
-        if ( number < Number.MAX_SAFE_INTEGER )
-            return this.isPrimeTrialDivision( number );
-        // avoid unsafe processing range
-        throw Error( 'The number used for the check exceeds the maximum safe integer' );
+        return this.isPrimeFast( number );
     }
 
     /**
@@ -146,9 +134,12 @@ class primes_web {
      * @returns {boolean} is prime number
      */
     isPrimeTrialDivision( number ) {
-        // check if parameter is of type number
+        // check type of parameter
         if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+            throw new Error( `For parameter 'number' argument of type ${ typeof number } given, but type of number expected` );
+        // check if parameter is a safe integer
+        if ( !Number.isSafeInteger( number ) )
+            throw new Error( `For parameter 'number' argument with not safe integer given` );
         // is below 2 or is even
         if ( number > 2 && number % 2 == 0 || number < 2 )
             return false;
@@ -168,9 +159,12 @@ class primes_web {
      * @returns 
      */
     isPrimeSieveEratosthenes( number ) {
-        // check if parameter is of type number
+        // check type of parameter
         if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+            throw new Error( `For parameter 'number' argument of type ${ typeof number } given, but type of number expected` );
+        // check if parameter is a safe integer
+        if ( !Number.isSafeInteger( number ) )
+            throw new Error( `For parameter 'number' argument with not safe integer given` );
         // is below 2
         if ( number < 2 ) return false;
         // prepare sieve field as bit array
@@ -194,14 +188,17 @@ class primes_web {
      * @param {number} number 
      */
     isPrimeFast( number ) {
-        // check if parameter is of type number
+        // check type of parameter
         if ( typeof number !== 'number' )
-            throw new Error( 'Parameter must be a number' );
+            throw new Error( `For parameter 'number' argument of type ${ typeof number } given, but type of number expected` );
+        // check if parameter is a safe integer
+        if ( !Number.isSafeInteger( number ) )
+            throw new Error( `For parameter 'number' argument with not safe integer given` );
         // abort if low set of prime numbers are not ready yet
         if ( !this.#low_set_ready )
-            throw Error( 'Low set of prime numbers is not ready yet' );
+            throw Error( 'Low set of prime numbers is not ready' );
         // number is below 2 or even
-        if ( number < 2 || number & 1 == 0 )
+        if ( number < 2 || number % 2 == 0 )
             return false;
         // could be in prepared list of prime numbers
         if ( number <= this.#low_set_last ) {
@@ -229,20 +226,26 @@ class primes_web {
      * @returns {array} prime numbers
      */
     getPrimes( range_start, range_end, keep_cache = true ) {
+        // check type of parameters
+        if ( typeof range_start !== 'number' )
+            throw new Error( `For parameter 'range_start' argument of type ${ typeof range_start } given, but type of number expected` );
+        if ( typeof range_end !== 'number' )
+            throw new Error( `For parameter 'range_end' argument of type ${ typeof range_end } given, but type of number expected` );
+        if ( typeof keep_cache !== 'number' )
+            throw new Error( `For parameter 'keep_cache' argument of type ${ typeof keep_cache } given, but type of boolean expected` );
+        // check parameters are safe integers
+        if ( !Number.isSafeInteger( range_start ) )
+            throw new Error( `For parameter 'range_start' argument with not safe integer given` );
+        if ( !Number.isSafeInteger( range_end ) )
+            throw new Error( `For parameter 'range_end' argument with not safe integer given` );
+        // sort range limiters
+        if ( range_start > range_end )
+            [ range_start, range_end ] = [ range_end, range_start ];
+        // check if already in cache
+        if ( keep_cache && range_start == this.#list_start && range_end == this.#list_end )
+            return this.#list;
         // reset list of prime numbers
         this.#resetList();
-        // check if parameters is of type number
-        if ( typeof range_start !== 'number' || typeof range_end !== 'number' )
-            throw new Error( 'Parameters must be a number' );
-        // sort range limiter
-        if ( range_start > range_end ) {
-            let tmp = range_start;
-            range_end = range_start;
-            range_end = tmp;
-        }
-        // check if already in cache
-        if ( range_start == this.#list_start && range_end == this.#list_end )
-            return this.#list;
         // init new list with counter
         let newList = [], counter = 0;
         // use low set of prime numbers are ready
@@ -250,6 +253,21 @@ class primes_web {
 
             // WIP
 
+            // case 0: range_start is below - range_end is below - no results
+            // case 1: range_start is below - range_end is in low set - low set result
+            // case 2: range_start is below - range_end is in high set - low & high set result
+            // case 3: range_start is in low set - range_end is in low set - low set result
+            // case 4: range_start is in low set - range_end is in high set - low & high set result
+            // case 6: range_start is in high set - range_end is in high set - high set result
+
+            if ( range_end >= 2 ) {
+                let current = Math.max( range_start, 2 );
+
+                // fill from low set
+
+                // get high set
+
+            }
         // else use conventional
         } else {
             let number = range_start;
@@ -284,32 +302,33 @@ class primes_web {
          */
         constructor( size ) {
             // check if parameter is of type number
-            if ( typeof number !== 'number' )
-                throw new Error( 'Parameter must be a number' );
+            if ( typeof size !== 'number' )
+                throw new Error( `For parameter 'size' argument of type ${ typeof size } given, but type of number expected` );
+            // check if parameter is safe integer
+            if ( !Number.isSafeInteger( size ) || size < 1 )
+                throw new Error( `For parameter 'size' argument must be between 1 and max safe integer` );
             // set mask
             this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
-            // set size
-            this.#size;
             // create bit field
             this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
+            // set size
+            this.#size = size;
         }
 
         /**
          * Set number in the field
          * @param {number} number 
          */
-        set( number ) {
-            // check if parameter is of type number
-            if ( typeof number !== 'number' )
-                throw new Error( 'Parameter must be a number' );
-            // precheck if number is odd and within represented range in field
-            if ( number & 1 == 1 && number >= 0 && number <= this.#size ) {
-                // check if mask exists
-                const mask = this.#mask[ number % 30 ];
-                if ( mask != 0 )
-                    // set bit in field that represents the number
-                    this.#data[ Math.floor( number / 30 ) ] |= mask;
+        set( number, skip_checks = false ) {
+            if ( !skip_checks ) {
+                // check if parameter is of type number
+                if ( typeof number !== 'number' )
+                    throw new Error( `For parameter 'number' argument of type ${ typeof number } given, but type of number expected` );
+                if ( number % 2 == 0 || number < 0 || number > this.#size )
+                    return;
             }
+            // set bit in field that represents the number
+            this.#data[ Math.floor( number / 30 ) ] |= this.#mask[ number % 30 ];
         }
 
         /**
@@ -317,45 +336,20 @@ class primes_web {
          * @param {number} number 
          * @returns {boolean} if number is marked as prime number
          */
-        get( number ) {
-            // check if parameter is of type number
-            if ( typeof number !== 'number' )
-                throw new Error( 'Parameter must be a number' );
-            // precheck if number below wheel factorization or is even
-            if ( number & 1 == 0 || number < 7 || number > this.#size )
-                return false;
+        get( number, skip_checks = false ) {
+            if ( !skip_checks ) {
+                // check if parameter is of type number
+                if ( typeof number !== 'number' )
+                    throw new Error( `For parameter 'number' argument of type ${ typeof number } given, but type of number expected` );
+                if ( number % 2 == 0 || number < 7 || number > this.#size )
+                    return 1;
+            }
             // check if mask exists & get bit in field that represents the number
             const mask = this.#mask[ number % 30 ];
-            if ( mask && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
-                return true;
+            if ( mask )
+                return this.#data[ Math.floor(number / 30) ] & mask;
             // number is not marked
-            return false;
-        }
-    }
-
-    /**
-     * copy of internal class bitarray, to test performance with removed safety checks & comments
-     */
-    static BitArrayTest = class {
-        #mask;
-        #data;
-
-        constructor( size ) {
-            this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
-            this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
-        }
-
-        set( number ) {
-            const mask = this.#mask[ number % 30 ];
-            if ( mask != 0 )
-                this.#data[ Math.floor( number / 30 ) ] |= mask;
-        }
-
-        get( number ) {
-            const mask = this.#mask[ number % 30 ];
-            if ( mask != 0 && this.#data[ Math.floor( number / 30 ) ] & mask != 0 )
-                return true;
-            return false;
+            return 1;
         }
     }
 }
