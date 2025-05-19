@@ -347,10 +347,71 @@ class primes_web {
             // check if mask exists & get bit in field that represents the number
             const mask = this.#mask[ number % 30 ];
             if ( mask )
-                return this.#data[ Math.floor(number / 30) ] & mask;
+                return this.#data[ Math.floor( number / 30 ) ] & mask;
             // number is not marked
             return 1;
         }
     }
+    /*/static BitArray = class {
+        #mask;
+        #size;
+        #data;
+
+        /**
+         * Initializes mask and field
+         * @param {number} size 
+         *
+        constructor( size ) {
+            // check if parameter is of type number
+            if ( typeof size !== 'number' )
+                throw new Error( `For parameter 'size' argument of type ${ typeof size } given, but type of number expected` );
+            // check if parameter is safe integer
+            if ( !Number.isSafeInteger( size ) || size < 1 )
+                throw new Error( `For parameter 'size' argument must be between 1 and max safe integer` );
+            // set mask
+            this.#mask = [ 0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80 ];
+            // create bit field
+            this.#data = new Uint8Array( Math.floor( size / 30 ) + 1 );
+            // set size
+            this.#size = size;
+        }
+
+        /**
+         * Set number in the field
+         * @param {number} number 
+         *
+        set( number, skip_checks = false ) {
+            if ( !skip_checks ) {
+                // check if parameter is of type number
+                if ( typeof number !== 'number' )
+                    throw new Error( `For parameter 'number' argument of type ${ typeof number } given, but type of number expected` );
+                if ( number % 2 == 0 || number < 0 || number > this.#size )
+                    return;
+            }
+            // set bit in field that represents the number
+            this.#data[ Math.floor( number / 30 ) ] |= this.#mask[ number % 30 ];
+        }
+
+        /**
+         * Get is prime number mark from field for number
+         * @param {number} number 
+         * @returns {boolean} if number is marked as prime number
+         *
+        get( number, skip_checks = false ) {
+            if ( !skip_checks ) {
+                // check if parameter is of type number
+                if ( typeof number !== 'number' )
+                    throw new Error( `For parameter 'number' argument of type ${ typeof number } given, but type of number expected` );
+                if ( number % 2 == 0 || number < 7 || number > this.#size )
+                    return 1;
+            }
+            // check if mask exists & get bit in field that represents the number
+            const mask = this.#mask[ number % 30 ];
+            if ( mask )
+                return this.#data[ Math.floor(number / 30) ] & mask;
+            // number is not marked
+            return 1;
+        }
+    }/**/
 }
 
