@@ -328,7 +328,9 @@ class primes_web {
                     return;
             }
             // set bit in field that represents the number
-            this.#data[ Math.floor( number / 30 ) ] |= this.#mask[ number % 30 ];
+            const mask = this.#mask[ number % 30 ];
+            if ( mask )
+                this.#data[ Math.floor( number / 30 ) ] |= mask;
         }
 
         /**
