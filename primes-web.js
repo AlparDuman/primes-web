@@ -19,10 +19,13 @@
 
 /**
  * Set of methods for prime numbers.
- * Each category has 3 algorithm and a default method that uses the recommended algorithm
  * - Check if a single number is a prime number
  * - Count prime numbers in given range
  * - Get a List of prime numbers in given range
+ * Each category has 3 algorithms and a default method that uses the recommended algorithm
+ * - Trial Division
+ * - Sieve Eratosthenes
+ * - Bucket Sieve
  */
 class primes_web {
     #low_set;
@@ -33,16 +36,10 @@ class primes_web {
      * Initiate and starts asynchronously generate a low set
      */
     constructor() {
-        this.#generateLowSet(Number.MAX_SAFE_INTEGER);
-    }
-
-    /**
-     * Reset low set
-     */
-    #resetLowSet() {
-        this.#low_set_ready = false;
-        this.#low_set_last = 0;
         this.#low_set = [];
+        this.#low_set_last = 0;
+        this.#low_set_ready = false;
+        this.#generateLowSet(Number.MAX_SAFE_INTEGER);
     }
 
     /**
@@ -52,8 +49,6 @@ class primes_web {
     async #generateLowSet(range, report_to_console = true) {
         // update range for low set
         range = Math.floor(Math.sqrt(range));
-        // reset low set
-        this.#resetLowSet();
         // timing start
         let timing_start = Date.now();
         // pre-add before wheel factorization
@@ -95,7 +90,7 @@ class primes_web {
      * @returns {boolean} is a prime number
      */
     isPrime(number) {
-        return this.isPrimeFast(number);
+        return this.isPrimeBucketSieve(number);
     }
 
     /**
@@ -155,7 +150,7 @@ class primes_web {
      * @param {number} number
      * @returns {boolean} is prime number
      */
-    isPrimeFast(number) {
+    isPrimeBucketSieve(number) {
         // check parameter
         if (typeof number !== 'number')
             throw new Error(`For parameter 'number' argument of type ${typeof number} given, but type of number expected`);
@@ -185,7 +180,7 @@ class primes_web {
     // ====================[ counter ]====================
 
     countPrimes(range_start, range_end) {
-        return countPrimesFast(range_start, range_end);
+        return countPrimesBucketSieve(range_start, range_end);
     }
 
     countPrimesTrialDivision(range_start, range_end) {
@@ -238,7 +233,7 @@ class primes_web {
         return counter;
     }
 
-    countPrimesFast(range_start, range_end) {
+    countPrimesBucketSieve(range_start, range_end) {
         // check type of parameters
         if (typeof range_start !== 'number')
             throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
@@ -265,7 +260,7 @@ class primes_web {
     // ====================[ list ]====================
 
     getPrimes(range_start, range_end) {
-        return getPrimesFast(range_start, range_end);
+        return getPrimesBucketSieve(range_start, range_end);
     }
 
     getPrimesTrialDivision(range_start, range_end) {
@@ -321,7 +316,7 @@ class primes_web {
      * @param {number} range_end - end search of prime numbers
      * @returns {array} prime numbers
      */
-    getPrimesFast(range_start, range_end) {
+    getPrimesBucketSieve(range_start, range_end) {
         // check type of parameters
         if (typeof range_start !== 'number')
             throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
