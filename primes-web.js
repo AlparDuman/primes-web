@@ -99,11 +99,8 @@ class primes_web {
      * @returns {boolean} is prime number
      */
     isPrimeTrialDivision(number) {
-        // check parameter
-        if (typeof number !== 'number')
-            throw new Error(`For parameter 'number' argument of type ${typeof number} given, but type of number expected`);
-        if (!Number.isSafeInteger(number))
-            throw new Error(`For parameter 'number' argument with not safe integer given`);
+        // prepare paramter
+        [number] = this.#prepareParameters([number]);
         // check 75% - 1 cases
         if (number < 2 || number != 2 && number % 2 == 0)
             return false;
@@ -122,11 +119,8 @@ class primes_web {
      * @returns {boolean} is prime number
      */
     isPrimeSieveEratosthenes(number) {
-        // check parameter
-        if (typeof number !== 'number')
-            throw new Error(`For parameter 'number' argument of type ${typeof number} given, but type of number expected`);
-        if (!Number.isSafeInteger(number))
-            throw new Error(`For parameter 'number' argument with not safe integer given`);
+        // prepare paramter
+        [number] = this.#prepareParameters([number]);
         // is below 2
         if (number < 2) return false;
         // prepare sieve field as bit array
@@ -151,11 +145,8 @@ class primes_web {
      * @returns {boolean} is prime number
      */
     isPrimeBucketSieve(number) {
-        // check parameter
-        if (typeof number !== 'number')
-            throw new Error(`For parameter 'number' argument of type ${typeof number} given, but type of number expected`);
-        if (!Number.isSafeInteger(number))
-            throw new Error(`For parameter 'number' argument with not safe integer given`);
+        // prepare paramter
+        [number] = this.#prepareParameters([number]);
         // low set is not ready
         if (!this.#low_set_ready)
             throw Error('Low set of prime numbers is not ready');
@@ -190,16 +181,8 @@ class primes_web {
      * @returns {array} prime numbers
      */
     countPrimesTrialDivision(range_start, range_end) {
-        // check type of parameters
-        if (typeof range_start !== 'number')
-            throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
-        if (typeof range_end !== 'number')
-            throw new Error(`For parameter 'range_end' argument of type ${typeof range_end} given, but type of number expected`);
-        // check parameters are safe integers
-        if (!Number.isSafeInteger(range_start))
-            throw new Error(`For parameter 'range_start' argument with not safe integer given`);
-        if (!Number.isSafeInteger(range_end))
-            throw new Error(`For parameter 'range_end' argument with not safe integer given`);
+        // prepare paramters
+        [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // sort range limiters
         if (range_start > range_end)
             [range_start, range_end] = [range_end, range_start];
@@ -223,16 +206,8 @@ class primes_web {
      * @returns {array} prime numbers
      */
     countPrimesSieveEratosthenes(range_start, range_end) {
-        // check type of parameters
-        if (typeof range_start !== 'number')
-            throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
-        if (typeof range_end !== 'number')
-            throw new Error(`For parameter 'range_end' argument of type ${typeof range_end} given, but type of number expected`);
-        // check parameters are safe integers
-        if (!Number.isSafeInteger(range_start))
-            throw new Error(`For parameter 'range_start' argument with not safe integer given`);
-        if (!Number.isSafeInteger(range_end))
-            throw new Error(`For parameter 'range_end' argument with not safe integer given`);
+        // prepare paramters
+        [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // sort range limiters
         if (range_start > range_end)
             [range_start, range_end] = [range_end, range_start];
@@ -247,19 +222,8 @@ class primes_web {
     }
 
     countPrimesBucketSieve(range_start, range_end) {
-        // check type of parameters
-        if (typeof range_start !== 'number')
-            throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
-        if (typeof range_end !== 'number')
-            throw new Error(`For parameter 'range_end' argument of type ${typeof range_end} given, but type of number expected`);
-        // check parameters are safe integers
-        if (!Number.isSafeInteger(range_start))
-            throw new Error(`For parameter 'range_start' argument with not safe integer given`);
-        if (!Number.isSafeInteger(range_end))
-            throw new Error(`For parameter 'range_end' argument with not safe integer given`);
-        // sort range limiters
-        if (range_start > range_end)
-            [range_start, range_end] = [range_end, range_start];
+        // prepare paramters
+        [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // init counter
         let counter = 0;
         // 
@@ -289,19 +253,8 @@ class primes_web {
      * @returns {array} prime numbers
      */
     getPrimesTrialDivision(range_start, range_end) {
-        // check type of parameters
-        if (typeof range_start !== 'number')
-            throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
-        if (typeof range_end !== 'number')
-            throw new Error(`For parameter 'range_end' argument of type ${typeof range_end} given, but type of number expected`);
-        // check parameters are safe integers
-        if (!Number.isSafeInteger(range_start))
-            throw new Error(`For parameter 'range_start' argument with not safe integer given`);
-        if (!Number.isSafeInteger(range_end))
-            throw new Error(`For parameter 'range_end' argument with not safe integer given`);
-        // sort range limiters
-        if (range_start > range_end)
-            [range_start, range_end] = [range_end, range_start];
+        // prepare paramters
+        [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // init new list
         const primes = [];
         // 
@@ -319,19 +272,8 @@ class primes_web {
      * @returns {array} prime numbers
      */
     getPrimesSieveEratosthenes(range_start, range_end) {
-        // check type of parameters
-        if (typeof range_start !== 'number')
-            throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
-        if (typeof range_end !== 'number')
-            throw new Error(`For parameter 'range_end' argument of type ${typeof range_end} given, but type of number expected`);
-        // check parameters are safe integers
-        if (!Number.isSafeInteger(range_start))
-            throw new Error(`For parameter 'range_start' argument with not safe integer given`);
-        if (!Number.isSafeInteger(range_end))
-            throw new Error(`For parameter 'range_end' argument with not safe integer given`);
-        // sort range limiters
-        if (range_start > range_end)
-            [range_start, range_end] = [range_end, range_start];
+        // prepare paramters
+        [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // init new list
         const primes = [];
         // 
@@ -374,6 +316,28 @@ class primes_web {
         return primes;
     }
 
+    // ====================[ prepare parameters ]====================
+
+    /**
+     * Prepares paramters if of type number, are safe integer and sorts
+     * @param {array} paramters
+     * @returns {array} sorted numbers
+     */
+    #prepareParameters(parameters) {
+        // check types and are safe integer
+        for (let parameter in parameters) {
+            if (typeof parameter !== 'number')
+                throw new Error(`Argument of type ${typeof parameter} given, but type of number expected`);
+            if (!Number.isSafeInteger(parameter))
+                throw new Error(`Argument with not safe integer given`);
+        }
+        // sort
+        if (parameters.length >= 2)
+            if (parameters[0] > parameters[1])
+                [parameters[0], parameters[1]] = [parameters[1], parameters[0]];
+        // return
+        return parameters;
+    }
     // ====================[ bit array ]====================
 
     /**
