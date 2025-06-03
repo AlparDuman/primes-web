@@ -126,9 +126,7 @@ class primes_web {
         [number] = this.#prepareParameters([number]);
         if (!this.#low_set_ready)
             throw Error('Low set of prime numbers is not ready');
-        if (number == 2)
-            return true;
-        if (number < 2 || number % 2 == 0)
+        if (number < 2 || number != 2 && number % 2 == 0)
             return false;
         if (number <= this.#low_set_last) {
             for (candidate in this.#low_set)
