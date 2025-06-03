@@ -424,7 +424,7 @@ class primes_web {
         /**
          * Get is non prime number mark from field
          * @param {number} number 
-         * @returns {boolean} is marked as non prime number
+         * @returns {number} is marked as non prime number
          */
         get(number, skip_checks = false) {
             if (!skip_checks) {
