@@ -210,7 +210,19 @@ class primes_web {
         // mark all multiples of low set
         // all non marked are prime numbers
 
-        
+        range_start = Math.max(range_start, this.#low_set_last);
+        if (range_start <= range_end) {
+            const range = range_end - range_start + 60;
+            const sieveField = new primes_web.BitArray(range);
+            const offset = range_start - range_start % 30;
+            const offsetLimit = range_end - offset;
+
+            for (let lowPrime in this.#low_set) {
+                counter++;
+                const stepMultiple = lowPrime * 2;
+                for (let oddMultiple = lowPrime + stepMultiple; oddMultiple <= offsetLimit; oddMultiple += stepMultiple)
+                    sieveField.set(oddMultiple, true);
+            }
 
 
 
@@ -220,6 +232,7 @@ class primes_web {
 
 
 
+        }
         
         return counter;
     }
