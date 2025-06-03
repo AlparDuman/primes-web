@@ -47,36 +47,26 @@ class primes_web {
      * @param {number} range
     */
     async #generateLowSet(range, report_to_console = true) {
-        // update range for low set
         range = Math.floor(Math.sqrt(range));
-        // timing start
         let timing_start = Date.now();
-        // pre-add before wheel factorization
         if (range >= 2) this.#low_set.push(2);
         if (range >= 3) this.#low_set.push(3);
         if (range >= 5) this.#low_set.push(5);
-        // prepare for loops
         const sieveField = new primes_web.BitArray(range);
         const range_sqrt = Math.floor(Math.sqrt(range));
-        // save non marked as prime number
         let candidate = 7, oddMultiple;
         for (; candidate <= range_sqrt; candidate += 2)
             if (!sieveField.get(candidate, true)) {
                 this.#low_set.push(candidate);
-                // mark odd multiples of this as non prime number
                 const stepMultiple = candidate * 2;
                 for (oddMultiple = candidate + stepMultiple; oddMultiple <= range; oddMultiple += stepMultiple)
                     sieveField.set(oddMultiple, true);
             }
-        // save remaining prime numbers
         for (; candidate <= range; candidate += 2)
             if (!sieveField.get(candidate, true))
                 this.#low_set.push(candidate);
-        // save last prime number
         this.#low_set_last = this.#low_set[this.#low_set.length - 1];
-        // set ready flag
         this.#low_set_ready = true;
-        // timing end & report to console
         let timing_end = Date.now();
         if (report_to_console)
             console.log(`[primes-web] Generated ${this.#low_set.length} prime numbers in ${Math.round((timing_end - timing_start))} ms for low set in range from 0 to ${range}`);
@@ -99,17 +89,13 @@ class primes_web {
      * @returns {boolean} is prime number
      */
     isPrimeTrialDivision(number) {
-        // prepare paramter
         [number] = this.#prepareParameters([number]);
-        // check 75% - 1 cases
         if (number < 2 || number != 2 && number % 2 == 0)
             return false;
-        // search for a 3rd divisor
         const number_sqrt = Math.floor(Math.sqrt(number));
         for (let candidate = 3; candidate <= number_sqrt; candidate += 2)
             if (number % candidate == 0)
                 return false;
-        // no 3rd divisor found
         return true;
     }
 
@@ -119,23 +105,15 @@ class primes_web {
      * @returns {boolean} is prime number
      */
     isPrimeSieveEratosthenes(number) {
-        // prepare paramter
         [number] = this.#prepareParameters([number]);
-        // is below 2
         if (number < 2) return false;
-        // prepare sieve field as bit array
         const sieveField = new Array(number + 1).fill(true);
-        // mark 0 & 1
         sieveField[0] = sieveField[1] = false;
-        // iterate each number
         const number_sqrt = Math.floor(Math.sqrt(number));
         for (let next = 2; next <= number_sqrt; next++)
-            // is not marked yet
             if (sieveField[next])
-                // mark all multiples
                 for (let multiple = next * 2; multiple <= number; multiple += next)
                     sieveField[multiple] = false;
-        // is number not marked
         return sieveField[number];
     }
 
@@ -145,24 +123,18 @@ class primes_web {
      * @returns {boolean} is prime number
      */
     isPrimeBucketSieve(number) {
-        // prepare paramter
         [number] = this.#prepareParameters([number]);
-        // low set is not ready
         if (!this.#low_set_ready)
             throw Error('Low set of prime numbers is not ready');
-        // is 2
         if (number == 2)
             return true;
-        // not too low and not even
-        if (number < 2 || number != 2 && number % 2 == 0)
+        if (number < 2 || number % 2 == 0)
             return false;
-        // in low set
         if (number <= this.#low_set_last) {
             for (candidate in this.#low_set)
                 if (number == candidate)
                     return true;
             return false;
-        // does low set not contain a common divider
         } else {
             for (candidate in this.#low_set)
                 if (number % candidate == 0)
@@ -184,20 +156,14 @@ class primes_web {
      * @returns {array} prime numbers
      */
     countPrimesTrialDivision(range_start, range_end) {
-        // prepare paramters
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
-        // sort range limiters
         if (range_start > range_end)
             [range_start, range_end] = [range_end, range_start];
-        // init counter
         let counter = 0;
-        // pre-add the only even number
         if (range_start <= 2 && range_end >= 2) counter++;
-        // add odd numbers if prime number
         for (let candidate = range_start % 2 == 1 ? range_start : range_start++; candidate <= range_end; candidate += 2)
             if (this.isPrimeTrialDivision(candidate))
                 counter++;
-        // return count of prime numbers
         return counter;
     }
 
@@ -209,16 +175,11 @@ class primes_web {
      * @returns {array} prime numbers
      */
     countPrimesSieveEratosthenes(range_start, range_end) {
-        // prepare paramters
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
-        // sort range limiters
         if (range_start > range_end)
             [range_start, range_end] = [range_end, range_start];
-        // init counter
         let counter = 0;
-        // init new list
         const field = new Array(range_end).fill(true);
-        // mark multiple of non marked and save in range non marked as primes
         for (let candidate = 2; candidate <= range_end; candidate++)
             if (field[candidate]) {
                 if (candidate >= range_start)
@@ -226,20 +187,15 @@ class primes_web {
                 for (let multiple = candidate * 2; multiple <= range_end; multiple += candidate)
                     field[multiple] = false;
             }
-        // return count of prime numbers
         return counter;
     }
 
     countPrimesBucketSieve(range_start, range_end) {
-        // prepare paramters
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
-        // init counter
         let counter = 0;
-        // 
 
         // WIP
         
-        // return count of prime numbers
         return counter;
     }
 
@@ -262,17 +218,12 @@ class primes_web {
      * @returns {array} prime numbers
      */
     getPrimesTrialDivision(range_start, range_end) {
-        // prepare paramters
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
-        // init new list
         const primes = [];
-        // pre-add the only even number
         if (range_start <= 2 && range_end >= 2) primes.push(2);
-        // add odd numbers if prime number
         for (let candidate = range_start % 2 == 1 ? range_start : range_start++; candidate <= range_end; candidate += 2)
             if (this.isPrimeTrialDivision(candidate))
                 primes.push(candidate);
-        // return prime numbers
         return primes;
     }
 
@@ -283,11 +234,8 @@ class primes_web {
      * @returns {array} prime numbers
      */
     getPrimesSieveEratosthenes(range_start, range_end) {
-        // prepare paramters
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
-        // init new list
         const primes = [], field = new Array(range_end).fill(true);
-        // mark multiple of non marked and save in range non marked as primes
         for (let candidate = 2; candidate <= range_end; candidate++)
             if (field[candidate]) {
                 if (candidate >= range_start)
@@ -295,19 +243,14 @@ class primes_web {
                 for (let multiple = candidate * 2; multiple <= range_end; multiple += candidate)
                     field[multiple] = false;
             }
-        // return prime numbers
         return primes;
     }
 
     getPrimesBucketSieve(range_start, range_end) {
-        // prepare paramters
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
-        // low set is ready
         if (!this.#low_set_ready)
             throw new Error(`Low set of prime numbers is not ready`);
-        // init new list
         const primes = [];
-        // 
 
         // WIP
 
@@ -318,7 +261,6 @@ class primes_web {
         // case 4: range_start is in low set - range_end is in high set - low & high set result
         // case 6: range_start is in high set - range_end is in high set - high set result
 
-        // return internal list of prime numbers
         return primes;
     }
 
@@ -330,18 +272,15 @@ class primes_web {
      * @returns {array} sorted numbers
      */
     #prepareParameters(parameters) {
-        // check types and are safe integer
         for (let parameter in parameters) {
             if (typeof parameter !== 'number')
                 throw new Error(`Argument of type ${typeof parameter} given, but type of number expected`);
             if (!Number.isSafeInteger(parameter))
                 throw new Error(`Argument with not safe integer given`);
         }
-        // sort
         if (parameters.length >= 2)
             if (parameters[0] > parameters[1])
                 [parameters[0], parameters[1]] = [parameters[1], parameters[0]];
-        // return
         return parameters;
     }
 
@@ -360,17 +299,12 @@ class primes_web {
          * @param {number} size 
          */
         constructor(size) {
-            // check if parameter is of type number
             if (typeof size !== 'number')
                 throw new Error(`For parameter 'size' argument of type ${typeof size} given, but type of number expected`);
-            // check if parameter is safe integer
             if (!Number.isSafeInteger(size) || size < 1)
                 throw new Error(`For parameter 'size' argument must be between 1 and max safe integer`);
-            // set mask
             this.#mask = [0, 0x1, 0, 0, 0, 0, 0, 0x2, 0, 0, 0, 0x4, 0, 0x8, 0, 0, 0, 0x10, 0, 0x20, 0, 0, 0, 0x40, 0, 0, 0, 0, 0, 0x80];
-            // create bit field
             this.#data = new Uint8Array(Math.floor(size / 30) + 1);
-            // set size
             this.#size = size;
         }
 
@@ -380,13 +314,11 @@ class primes_web {
          */
         set(number, skip_checks = false) {
             if (!skip_checks) {
-                // check if parameter is of type number
                 if (typeof number !== 'number')
                     throw new Error(`For parameter 'number' argument of type ${typeof number} given, but type of number expected`);
                 if (number % 2 == 0 || number < 0 || number > this.#size)
                     return;
             }
-            // set bit in field that represents the number
             const mask = this.#mask[number % 30];
             if (mask)
                 this.#data[Math.floor(number / 30)] |= mask;
@@ -399,17 +331,14 @@ class primes_web {
          */
         get(number, skip_checks = false) {
             if (!skip_checks) {
-                // check if parameter is of type number
                 if (typeof number !== 'number')
                     throw new Error(`For parameter 'number' argument of type ${typeof number} given, but type of number expected`);
                 if (number % 2 == 0 || number < 7 || number > this.#size)
                     return 1;
             }
-            // get bit from field that represents the number
             const mask = this.#mask[number % 30];
             if (mask)
                 return this.#data[Math.floor(number / 30)] & mask;
-            // number is not marked
             return 1;
         }
     }
