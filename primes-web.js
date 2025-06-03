@@ -183,6 +183,12 @@ class primes_web {
         return countPrimesBucketSieve(range_start, range_end);
     }
 
+    /**
+     * Get a count of all prime numbers in a given range using trail division
+     * @param {number} range_start 
+     * @param {number} range_end 
+     * @returns {array} prime numbers
+     */
     countPrimesTrialDivision(range_start, range_end) {
         // check type of parameters
         if (typeof range_start !== 'number')
@@ -209,6 +215,13 @@ class primes_web {
         return counter;
     }
 
+
+    /**
+     * Get a count of all prime numbers in a given range using eratosthenes sieving
+     * @param {number} range_start 
+     * @param {number} range_end 
+     * @returns {array} prime numbers
+     */
     countPrimesSieveEratosthenes(range_start, range_end) {
         // check type of parameters
         if (typeof range_start !== 'number')
@@ -259,10 +272,22 @@ class primes_web {
 
     // ====================[ list ]====================
 
+    /**
+     * Get a list of all prime numbers in a given range using recommended algorithm
+     * @param {number} range_start 
+     * @param {number} range_end 
+     * @returns {array} prime numbers
+     */
     getPrimes(range_start, range_end) {
         return getPrimesBucketSieve(range_start, range_end);
     }
 
+    /**
+     * Get a list of all prime numbers in a given range using trail division
+     * @param {number} range_start 
+     * @param {number} range_end 
+     * @returns {array} prime numbers
+     */
     getPrimesTrialDivision(range_start, range_end) {
         // check type of parameters
         if (typeof range_start !== 'number')
@@ -287,6 +312,12 @@ class primes_web {
         return primes;
     }
 
+    /**
+     * Get a list of all prime numbers in a given range using eratosthenes sieving
+     * @param {number} range_start 
+     * @param {number} range_end 
+     * @returns {array} prime numbers
+     */
     getPrimesSieveEratosthenes(range_start, range_end) {
         // check type of parameters
         if (typeof range_start !== 'number')
@@ -310,12 +341,6 @@ class primes_web {
         return primes;
     }
 
-    /**
-     * Get a list if all prime numbers in a given range
-     * @param {number} range_start - begin search for prime numbers
-     * @param {number} range_end - end search of prime numbers
-     * @returns {array} prime numbers
-     */
     getPrimesBucketSieve(range_start, range_end) {
         // check type of parameters
         if (typeof range_start !== 'number')
