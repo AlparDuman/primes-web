@@ -192,9 +192,34 @@ class primes_web {
 
     countPrimesBucketSieve(range_start, range_end) {
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
+        if (!this.#low_set_ready)
+            throw new Error(`Low set of prime numbers is not ready`);
         let counter = 0;
 
         // WIP
+
+        if (range_start <= this.#low_set_last && range_end >= 2) {
+            let indexStart = 0;
+            for (; this.#low_set[indexStart] <= range_start; indexStart++) {}
+            let indexEnd = indexStart;
+            for (; this.#low_set[indexEnd] <= range_end && this.#low_set[indexEnd] <= this.#low_set_last; indexEnd++) {}
+            counter = indexEnd - indexStart + 1;
+        }
+
+        // use sieve field not starting from 0
+        // mark all multiples of low set
+        // all non marked are prime numbers
+
+        
+
+
+
+
+
+
+
+
+
         
         return counter;
     }
