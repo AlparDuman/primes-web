@@ -140,7 +140,7 @@ class primes_web {
     }
 
     /**
-     * Check if prime number with low set
+     * Check if prime number with bucket sieve's low set
      * @param {number} number
      * @returns {boolean} is prime number
      */
@@ -150,7 +150,10 @@ class primes_web {
         // low set is not ready
         if (!this.#low_set_ready)
             throw Error('Low set of prime numbers is not ready');
-        // is number 2 in range
+        // is 2
+        if (number == 2)
+            return true;
+        // not too low and not even
         if (number < 2 || number != 2 && number % 2 == 0)
             return false;
         // in low set
@@ -213,10 +216,16 @@ class primes_web {
             [range_start, range_end] = [range_end, range_start];
         // init counter
         let counter = 0;
-        // 
-
-        // WIP
-        
+        // init new list
+        const field = new Array(range_end).fill(true);
+        // mark multiple of non marked and save in range non marked as primes
+        for (let candidate = 2; candidate <= range_end; candidate++)
+            if (field[candidate]) {
+                if (candidate >= range_start)
+                    counter++;
+                for (let multiple = candidate * 2; multiple <= range_end; multiple += candidate)
+                    field[multiple] = false;
+            }
         // return count of prime numbers
         return counter;
     }
@@ -229,7 +238,7 @@ class primes_web {
         // 
 
         // WIP
-
+        
         // return count of prime numbers
         return counter;
     }
@@ -257,10 +266,12 @@ class primes_web {
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // init new list
         const primes = [];
-        // 
-
-        // WIP
-
+        // pre-add the only even number
+        if (range_start <= 2 && range_end >= 2) primes.push(2);
+        // add odd numbers if prime number
+        for (let candidate = range_start % 2 == 1 ? range_start : range_start++; candidate <= range_end; candidate += 2)
+            if (this.isPrimeTrialDivision(candidate))
+                primes.push(candidate);
         // return prime numbers
         return primes;
     }
@@ -275,28 +286,22 @@ class primes_web {
         // prepare paramters
         [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // init new list
-        const primes = [];
-        // 
-
-        // WIP
-
+        const primes = [], field = new Array(range_end).fill(true);
+        // mark multiple of non marked and save in range non marked as primes
+        for (let candidate = 2; candidate <= range_end; candidate++)
+            if (field[candidate]) {
+                if (candidate >= range_start)
+                    primes.push(candidate);
+                for (let multiple = candidate * 2; multiple <= range_end; multiple += candidate)
+                    field[multiple] = false;
+            }
+        // return prime numbers
         return primes;
     }
 
     getPrimesBucketSieve(range_start, range_end) {
-        // check type of parameters
-        if (typeof range_start !== 'number')
-            throw new Error(`For parameter 'range_start' argument of type ${typeof range_start} given, but type of number expected`);
-        if (typeof range_end !== 'number')
-            throw new Error(`For parameter 'range_end' argument of type ${typeof range_end} given, but type of number expected`);
-        // check parameters are safe integers
-        if (!Number.isSafeInteger(range_start))
-            throw new Error(`For parameter 'range_start' argument with not safe integer given`);
-        if (!Number.isSafeInteger(range_end))
-            throw new Error(`For parameter 'range_end' argument with not safe integer given`);
-        // sort range limiters
-        if (range_start > range_end)
-            [range_start, range_end] = [range_end, range_start];
+        // prepare paramters
+        [range_start, range_end] = this.#prepareParameters([range_start, range_end]);
         // low set is ready
         if (!this.#low_set_ready)
             throw new Error(`Low set of prime numbers is not ready`);
@@ -305,6 +310,7 @@ class primes_web {
         // 
 
         // WIP
+
         // case 0: range_start is below - range_end is below - no results
         // case 1: range_start is below - range_end is in low set - low set result
         // case 2: range_start is below - range_end is in high set - low & high set result
@@ -338,6 +344,7 @@ class primes_web {
         // return
         return parameters;
     }
+
     // ====================[ bit array ]====================
 
     /**
