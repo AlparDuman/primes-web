@@ -134,6 +134,8 @@ class primes_web {
                     return true;
             return false;
         } else {
+            if (number % 2 == 0)
+                return false;
             for (candidate in this.#low_set)
                 if (number % candidate == 0)
                     return false;
